@@ -36,7 +36,7 @@
 
             <div class="float " style="margin-left:20px;">
 
-                <div data-bind="foreach:users">
+                <div data-bind="foreach:players">
                     <div class="player" data-bind="css:{selectedPlayer:$data==$root.currentPlayer()}">
                         <div class="circle float" style="border:1px solid #000000;margin-right:5px;" data-bind="style:{backgroundColor:Color}">&nbsp;</div>  <div style="margin-left:5px;" class="" data-bind="text:Name() +', Magneter:' +Drops()+', Poäng:'+ItemSum()"></div>
                     </div>
@@ -53,20 +53,20 @@
         <div class="panel-body" data-bind="visible:showNumPlayers">
             <h4>Ange antal spelare och startmagneter</h4>
             Antal spelare (2-6):<br />
-            <input type="number" class="form-control" min="2" max="6" data-bind="value:numUsers" />
+            <input type="number" class="form-control" min="2" max="6" data-bind="value:numPlayers" />
             <br /><br />
             Antal startmagneter (1-20):<br />
             <input type="number" class="form-control" min="1" max="20" data-bind="value:numStartDrops" />
             <br /><br />
 
-            <button class="btn btn-default" data-bind=" click:nameUsers">Namnge användare</button>
+            <button class="btn btn-default" data-bind=" click:namePlayers">Namnge användare</button>
 
         </div>
         
         <!-- Vy: namnge spelare -->
         <div class="panel-body" data-bind="visible:showNamePlayers">
             <h4>Namnge spelare</h4>
-            <div data-bind="foreach:users">
+            <div data-bind="foreach:players">
 
                 <div style="margin-bottom:10px;">
                     <input type="text" class="form-control" data-bind="value:Name" />

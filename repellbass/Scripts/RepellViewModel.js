@@ -17,10 +17,10 @@ function RepellViewModel(appName, canvas) {
 
     self.currentPlayer = ko.observable(null);
 
-    self.numUsers = ko.observable(2);
+    self.numPlayers = ko.observable(2);
     self.numStartDrops = ko.observable(10);
 
-    self.users = ko.observableArray([]);
+    self.players = ko.observableArray([]);
     self.items = ko.observableArray([]);
 
     self.canvasDrawer;
@@ -76,8 +76,8 @@ function RepellViewModel(appName, canvas) {
     //returnerar ett objekt på en position, null om inget finns där
     self.getThingOnPosition = function (pos) {
 
-        for (i = 0; i < self.users().length; i++) {
-            var u = self.users()[i];
+        for (i = 0; i < self.players().length; i++) {
+            var u = self.players()[i];
 
             if (u.Pos === pos)
                 return u;
@@ -304,7 +304,7 @@ function RepellViewModel(appName, canvas) {
 
         self.items(JSON.parse(JSON.stringify(self.originalItems)));
 
-        var num = Math.floor(Math.random() * self.users().length);
+        var num = Math.floor(Math.random() * self.players().length);
         self.selectUserByNum(num);
 
         self.drawGame();
@@ -313,7 +313,7 @@ function RepellViewModel(appName, canvas) {
 
     //väljer aktuell spelare på index
     self.selectUserByNum = function (num) {
-        self.currentPlayer(self.users()[num]);
+        self.currentPlayer(self.players()[num]);
     }
 
     //uppdaterar spelstatustexten
@@ -336,9 +336,9 @@ function RepellViewModel(appName, canvas) {
             var playerName = "";
             var maxPoints = -1;
 
-            for (var i = 0; i < self.users().length; i++) {
+            for (var i = 0; i < self.players().length; i++) {
 
-                var p = self.users()[i];
+                var p = self.players()[i];
 
                 if (p.ItemSum() > maxPoints) {
                     playerName = p.Name();
@@ -354,8 +354,8 @@ function RepellViewModel(appName, canvas) {
     //returnerar huruvida någon användare kan röra på sig
     self.validMovesLeft = function () {
 
-        for (var i = 0; i < self.users().length; i++) {
-            var u = self.users()[i];
+        for (var i = 0; i < self.players().length; i++) {
+            var u = self.players()[i];
             if (u.Drops() > 0)
                 return true;
         }
@@ -368,10 +368,10 @@ function RepellViewModel(appName, canvas) {
 
         if (self.validMovesLeft()) {
 
-            var num = self.users.indexOf(self.currentPlayer());
+            var num = self.players.indexOf(self.currentPlayer());
 
             num++;
-            if (num === self.users().length)
+            if (num === self.players().length)
                 num = 0;
 
             self.selectUserByNum(num);
@@ -397,17 +397,17 @@ function RepellViewModel(appName, canvas) {
     };
 
     //visar andra vyn i spelstart-processen där man namnger användarna
-    self.nameUsers = function (item, event) {
+    self.namePlayers= function (item, event) {
         self.showNumPlayers(false);
         self.showNamePlayers(true);
         self.showGame(false);
 
         var list = [];
-        for (var i = 0; i < self.numUsers() ; i++) {
-            var u = new UserModel("Player " + (i + 1), self.colors[i], self.numStartDrops());
+        for (var i = 0; i < self.numPlayers() ; i++) {
+            var u = new PlayerModel("Spelare " + (i + 1), self.colors[i], self.numStartDrops());
             list.push(u);
         }
-        self.users(list);
+        self.players(list);
     };
 
     //visar första vyn i spelstart-processen

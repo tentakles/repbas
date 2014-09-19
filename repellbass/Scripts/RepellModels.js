@@ -1,5 +1,5 @@
 ﻿
-function UserModel(name, c, drops) {
+function PlayerModel(name, c, drops) {
     var self = this;
     self.Name = ko.observable(name);
     self.Items = ko.observableArray([]);
