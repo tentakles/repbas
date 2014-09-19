@@ -7,7 +7,7 @@ function RepellViewModel(appName, canvas) {
      ***  Variabler  ***
      *******************/
 
-    self.version = 0.1;
+    self.version = 0.2;
     self.rows = 12;
     self.cols = 12;
     self.playerHasMoved = false;
@@ -82,7 +82,7 @@ function RepellViewModel(appName, canvas) {
             if (p < 0 || p >= self.board.length)
                 continue;
 
-            if (self.getThingOnPosition(p) != null)
+            if (self.getThingOnPosition(p) != null && (!self.isNotlogicalPushRowDiff(item.Pos,p)))
                 return true;
         }
 
@@ -174,21 +174,23 @@ function RepellViewModel(appName, canvas) {
             if (diff == 0) {
                 //trigger reset
                 self.playerHasPlacedMovedTarget = false;
-            } else if (self.validDistance(self.oldpos, thingOnPosition.Pos)) {
+            }
+            else if (self.validDistance(self.oldpos, thingOnPosition.Pos)) {
 
                 var newPos = thingOnPosition.Pos + diff;
 
-                if (!self.getThingOnPosition(newPos)) {
-                    thingOnPosition.Pos = newPos;
-                    console.log("objekt flyttat på " + i);
+                if (!self.getThingOnPosition(newPos) || self.isNotlogicalPushRowDiff(newPos, thingOnPosition.Pos)) {
 
                     //todo fixme alla väderstreck skall fungera
-                    if (newPos < 0) {
+                    if (self.isOut(newPos, thingOnPosition.Pos)) {
+                        console.log("objekt utkastat.");
+                        thingOnPosition.Pos = -1;
+                        //if (newPos < 0) {
                         if (thingOnPosition instanceof ItemModel) {
                             player.Items.push(thingOnPosition);
                         }
                         else if (thingOnPosition instanceof PlayerModel) {
-                          
+
                             //todo fixme
                             //ta ett item från personen om det finns någon
                             //todo fixme få välja vilken drop man ska ha?! eller ta den värdefullaste?:O
@@ -203,7 +205,11 @@ function RepellViewModel(appName, canvas) {
                                 player.Items.push(drop);
                             }
                         }
-                      
+                    }
+                    else {
+                        thingOnPosition.Pos = newPos;
+                        console.log("objekt flyttat på " + i);
+
                     }
 
                 }
@@ -221,6 +227,29 @@ function RepellViewModel(appName, canvas) {
         }
 
         self.drawGame();
+    }
+
+
+    self.getRowFromPos = function (pos)
+    {
+        return pos % self.cols;
+    }
+
+    self.isNotlogicalPushRowDiff = function (newPos, oldPos) {
+
+        var r1 = self.getRowFromPos(newPos);
+        var r2 = self.getRowFromPos(oldPos);
+
+        var rdiff = Math.abs(r1 - r2);
+
+        return (rdiff > 1);
+    }
+
+    self.isOut = function (newPos, oldPos) {
+        if(newPos<0 || newPos > ((self.cols*self.rows)-1))
+            return true;
+
+        return self.isNotlogicalPushRowDiff(newPos, oldPos);
     }
 
     //tar bort objekt på en position om den finns där
@@ -321,9 +350,9 @@ function RepellViewModel(appName, canvas) {
 
             self.canvasDrawer.rect(xo, yo, xs, ys, bgColor);
 
-            //  self.canvasDrawer.drawText(i, xo + textoffsetx, yo + textoffsety, "black");
+             self.canvasDrawer.text(i, xo + textoffsetx, yo + textoffsety, "black");
 
-            self.canvasDrawer.text(obj.Num, xo + textoffsetx, yo + textoffsety, "black");
+            //self.canvasDrawer.text(obj.Num, xo + textoffsetx, yo + textoffsety, "black");
 
             var item = self.getThingOnPosition(i);
 
