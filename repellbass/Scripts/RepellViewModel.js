@@ -347,6 +347,8 @@ function RepellViewModel(appName, canvas) {
 
             if (self.currentPlayer().Pos == i)
                 bgColor = "yellow";
+            if (self.oldpos == i && self.playerHasPlacedMovedTarget)
+                bgColor = "magenta";
 
             self.canvasDrawer.rect(xo, yo, xs, ys, bgColor);
 
