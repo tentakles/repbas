@@ -8,32 +8,24 @@ function RepellViewModel(appName, canvas) {
      *******************/
 
     self.version = 0.1;
+    self.rows = 12;
+    self.cols = 12;
+    self.playerHasMoved = false;
+    self.playerHasPlacedMovedTarget = false;
+    self.oldpos = 0;
+    self.canvasDrawer = null;
 
+    self.status = ko.observable("");
     self.showNumPlayers = ko.observable(true);
     self.showNamePlayers = ko.observable(false);
     self.showGame = ko.observable(false);
-
     self.appName = ko.observable(appName + " " + self.version);
-
     self.currentPlayer = ko.observable(null);
-
     self.numPlayers = ko.observable(2);
     self.numStartDrops = ko.observable(10);
 
     self.players = ko.observableArray([]);
     self.items = ko.observableArray([]);
-
-    self.canvasDrawer;
-
-    self.rows = 12;
-    self.cols = 12;
-
-    self.playerHasMoved = false;
-    self.playerHasPlacedMovedTarget = false;
-
-    self.oldpos = 0;
-
-    self.status = ko.observable("");
 
     self.colors = ["brown", "blue", "pink", "purple", "red", "white"];
 
@@ -62,82 +54,66 @@ function RepellViewModel(appName, canvas) {
     /*******************
     ***    Metoder   ***
     *******************/
+    
+    /*
+    Spellogik
+    */
+    
+    //returnerar huruvida ett objekt ligger intill ett annat objekt
+    self.hasAdjacentObject = function (item) {
 
-    //tar bort objekt på en position om den finns där
-    self.removeThingOnPosition = function (pos) {
+        var positions = [];
+        positions.push(item.Pos - 1);
+        positions.push(item.Pos + 1);
+        positions.push(item.Pos - self.cols);
+        positions.push(item.Pos + self.cols);
 
-        var item = self.getThingOnPosition(pos);
+        positions.push(item.Pos - self.cols + 1);
+        positions.push(item.Pos + self.cols + 1);
+        positions.push(item.Pos - self.cols - 1);
+        positions.push(item.Pos + self.cols - 1);
 
-        if (item != null) {
-            self.items.remove(item);
+        for (var i = 0; i < positions.length; i++) {
+
+            var p = positions[i];
+
+            // console.log("kontrollerar närliggande positioner" +item.Pos + " ny:" +p)
+
+            if (p < 0 || p >= self.board.length)
+                continue;
+
+            if (self.getThingOnPosition(p) != null)
+                return true;
         }
+
+        return false;
     }
 
-    //returnerar ett objekt på en position, null om inget finns där
-    self.getThingOnPosition = function (pos) {
+    //returerar huruvida något objekt på kartan har ett intilliggande objekt
+    self.noAdjacentObjects = function () {
 
-        for (i = 0; i < self.players().length; i++) {
-            var u = self.players()[i];
-
-            if (u.Pos === pos)
-                return u;
+        for (var i = 0; i < self.board.length; i++) {
+            var thingOnPosition = self.getThingOnPosition(i);
+            if (thingOnPosition != null) {
+                if (self.hasAdjacentObject(thingOnPosition)) {
+                    console.log("objekt på position: " + i + " har närliggande objekt");
+                    return false;
+                }
+            }
         }
 
-        for (i = 0; i < self.items().length; i++) {
-            var item = self.items()[i];
-
-            if (item.Pos === pos)
-                return item;
-        }
-
-        return null;
+        return true;
     }
 
-    //ritar upp spelplanen
-    self.drawGame = function () {
+    //returnerar huruvida spelet är redo att gå till nästa tur
+    self.isReadyForNextTurn = function () {
 
-        var i = 0;
-        var x = 0;
-        var y = 0;
+        if (self.playerHasMoved && self.playerHasPlacedMovedTarget && self.noAdjacentObjects())
+            return true;
 
-        var xs = (self.canvasDrawer.width / self.cols);
-        var ys = (self.canvasDrawer.height / self.rows);
-        var textoffsetx = xs / 2;
-        var textoffsety = ys / 2;
-
-        for (i = 0; i < self.board.length; i++) {
-
-            var xo = x * xs;
-            var yo = y * ys;
-
-            var obj = self.board[i];
-
-            var bgColor = obj.Color;
-
-            if (self.currentPlayer().Pos == i)
-                bgColor = "yellow";
-
-            self.canvasDrawer.rect(xo, yo, xs, ys, bgColor);
-
-            //  self.canvasDrawer.drawText(i, xo + textoffsetx, yo + textoffsety, "black");
-
-            self.canvasDrawer.text(obj.Num, xo + textoffsetx, yo + textoffsety, "black");
-
-            var item = self.getThingOnPosition(i);
-
-            if (item != null) {
-                self.canvasDrawer.circle(xo + (xs / 2), yo + (ys / 2), item.Size, item.Color);
-            }
-
-            if ((i + 1) % self.cols == 0 && i > 0) {
-                y++;
-                x = 0;
-            }
-            else {
-                x++;
-            }
-        }
+        return false;
     }
+
 
     //returnerar ett svar på om det är en giltig distans att gå för en spelare
     self.validDistance = function (player, newpos) {
@@ -198,7 +174,7 @@ function RepellViewModel(appName, canvas) {
             if (diff == 0) {
                 //trigger reset
                 self.playerHasPlacedMovedTarget = false;
-            } else if (self.validDistance(self.oldpos,thingOnPosition.Pos)){
+            } else if (self.validDistance(self.oldpos, thingOnPosition.Pos)) {
 
                 var newPos = thingOnPosition.Pos + diff;
 
@@ -206,12 +182,30 @@ function RepellViewModel(appName, canvas) {
                     thingOnPosition.Pos = newPos;
                     console.log("objekt flyttat på " + i);
 
+                    //todo fixme alla väderstreck skall fungera
                     if (newPos < 0) {
-                        player.Items.push(thingOnPosition);
-                        // self.currentPlayer utanför arenan? isåfall ska man få pengar om det är en Item
+                        if (thingOnPosition instanceof ItemModel) {
+                            player.Items.push(thingOnPosition);
+                        }
+                        else if (thingOnPosition instanceof PlayerModel) {
+                          
+                            //todo fixme
+                            //ta ett item från personen om det finns någon
+                            //todo fixme få välja vilken drop man ska ha?! eller ta den värdefullaste?:O
+
+                            if (thingOnPosition.Items().length > 0) {
+                                player.Items.push(thingOnPosition.Items.pop());
+                            }
+                            var otherPlayersDrops = thingOnPosition.Drops();
+                            if (otherPlayersDrops > 0) {
+                                thingOnPosition.Drops(otherPlayersDrops - 1);
+                                var drop = new ItemModel("black", 1, player.Pos);
+                                player.Items.push(drop);
+                            }
+                        }
+                      
                     }
 
-                    //  console.log("diff " + newPos);
                 }
 
                 if (!self.noAdjacentObjects()) {
@@ -227,6 +221,124 @@ function RepellViewModel(appName, canvas) {
         }
 
         self.drawGame();
+    }
+
+    //tar bort objekt på en position om den finns där
+    self.removeThingOnPosition = function (pos) {
+
+        var item = self.getThingOnPosition(pos);
+
+        if (item != null) {
+            self.items.remove(item);
+        }
+    }
+
+    //returnerar ett objekt på en position, null om inget finns där
+    self.getThingOnPosition = function (pos) {
+
+        for (i = 0; i < self.players().length; i++) {
+            var u = self.players()[i];
+
+            if (u.Pos === pos)
+                return u;
+        }
+
+        for (i = 0; i < self.items().length; i++) {
+            var item = self.items()[i];
+
+            if (item.Pos === pos)
+                return item;
+        }
+
+        return null;
+    }
+
+    //väljer aktuell spelare på index
+    self.selectUserByNum = function (num) {
+        self.currentPlayer(self.players()[num]);
+    }
+
+
+    //returnerar huruvida någon användare kan röra på sig
+    self.validMovesLeft = function () {
+
+        for (var i = 0; i < self.players().length; i++) {
+            var u = self.players()[i];
+            if (u.Drops() > 0)
+                return true;
+        }
+
+        return false;
+    }
+
+    //byter tur till nästa spelare om det är möjligt
+    self.nextTurn = function () {
+
+        if (self.validMovesLeft()) {
+
+            var num = self.players.indexOf(self.currentPlayer());
+
+            num++;
+            if (num === self.players().length)
+                num = 0;
+
+            self.selectUserByNum(num);
+
+            if (self.currentPlayer().Drops() > 0) {
+                self.playerHasMoved = false;
+                self.playerHasPlacedMovedTarget = false;
+            }
+            else {
+                self.nextTurn();
+            }
+        }
+        self.getStatus();
+    }
+    
+    //ritar upp spelplanen
+    self.drawGame = function () {
+
+        var i = 0;
+        var x = 0;
+        var y = 0;
+
+        var xs = (self.canvasDrawer.width / self.cols);
+        var ys = (self.canvasDrawer.height / self.rows);
+        var textoffsetx = xs / 2;
+        var textoffsety = ys / 2;
+
+        for (i = 0; i < self.board.length; i++) {
+
+            var xo = x * xs;
+            var yo = y * ys;
+
+            var obj = self.board[i];
+
+            var bgColor = obj.Color;
+
+            if (self.currentPlayer().Pos == i)
+                bgColor = "yellow";
+
+            self.canvasDrawer.rect(xo, yo, xs, ys, bgColor);
+
+            //  self.canvasDrawer.drawText(i, xo + textoffsetx, yo + textoffsety, "black");
+
+            self.canvasDrawer.text(obj.Num, xo + textoffsetx, yo + textoffsety, "black");
+
+            var item = self.getThingOnPosition(i);
+
+            if (item != null) {
+                self.canvasDrawer.circle(xo + (xs / 2), yo + (ys / 2), item.Size, item.Color);
+            }
+
+            if ((i + 1) % self.cols == 0 && i > 0) {
+                y++;
+                x = 0;
+            }
+            else {
+                x++;
+            }
+        }
     }
 
     //omvandlar ett musevent till en position på brädet, och kör metoden som omvandlar ett markering på brädet till en händelse
@@ -246,62 +358,7 @@ function RepellViewModel(appName, canvas) {
 
         self.positionSelect(i);
     }
-
-    //returnerar huruvida ett objekt ligger intill ett annat objekt
-    self.hasAdjacentObject = function (item) {
-
-        var positions = [];
-        positions.push(item.Pos - 1);
-        positions.push(item.Pos + 1);
-        positions.push(item.Pos - self.cols);
-        positions.push(item.Pos + self.cols);
-
-        positions.push(item.Pos - self.cols + 1);
-        positions.push(item.Pos + self.cols + 1);
-        positions.push(item.Pos - self.cols - 1);
-        positions.push(item.Pos + self.cols - 1);
-
-        for (var i = 0; i < positions.length; i++) {
-
-            var p = positions[i];
-
-           // console.log("kontrollerar närliggande positioner" +item.Pos + " ny:" +p)
-
-            if (p < 0 || p >= self.board.length)
-                continue;
-
-            if (self.getThingOnPosition(p) != null)
-                return true;
-        }
-
-        return false;
-    }
-
-    //returerar huruvida något objekt på kartan har ett intilliggande objekt
-    self.noAdjacentObjects = function () {
-
-        for (var i = 0; i < self.board.length; i++) {
-            var thingOnPosition = self.getThingOnPosition(i);
-            if (thingOnPosition != null) {
-                if (self.hasAdjacentObject(thingOnPosition)) {
-                    console.log("objekt på position: " + i + " har närliggande objekt");
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    //returnerar huruvida spelet är redo att gå till nästa tur
-    self.isReadyForNextTurn = function () {
-
-        if (self.playerHasMoved && self.playerHasPlacedMovedTarget && self.noAdjacentObjects())
-            return true;
-
-        return false;
-    }
-
+    
     //startar ett nytt spel
     self.initGame = function (item, event) {
 
@@ -309,14 +366,9 @@ function RepellViewModel(appName, canvas) {
 
         var num = Math.floor(Math.random() * self.players().length);
         self.selectUserByNum(num);
-
-        self.drawGame();
+        
         self.nextTurn();
-    }
-
-    //väljer aktuell spelare på index
-    self.selectUserByNum = function (num) {
-        self.currentPlayer(self.players()[num]);
+        self.drawGame();
     }
 
     //uppdaterar spelstatustexten
@@ -353,44 +405,11 @@ function RepellViewModel(appName, canvas) {
             self.status("Spelet slut! " + playerName + " vann!");
         }
     }
-
-    //returnerar huruvida någon användare kan röra på sig
-    self.validMovesLeft = function () {
-
-        for (var i = 0; i < self.players().length; i++) {
-            var u = self.players()[i];
-            if (u.Drops() > 0)
-                return true;
-        }
-
-        return false;
-    }
-
-    //byter tur till nästa spelare om det är möjligt
-    self.nextTurn = function () {
-
-        if (self.validMovesLeft()) {
-
-            var num = self.players.indexOf(self.currentPlayer());
-
-            num++;
-            if (num === self.players().length)
-                num = 0;
-
-            self.selectUserByNum(num);
-
-            if (self.currentPlayer().Drops() > 0) {
-                self.playerHasMoved = false;
-                self.playerHasPlacedMovedTarget = false;
-            }
-            else {
-                self.nextTurn();
-            }
-        }
-
-        self.getStatus();
-    }
-
+    
+    /********************************************
+    Vy-hantering
+    *********************************************/
+    
     //visar tredje vyn, själva spelet, samt startar spelet
     self.startGame = function (item, event) {
         self.showNumPlayers(false);
@@ -419,6 +438,10 @@ function RepellViewModel(appName, canvas) {
         self.showNamePlayers(false);
         self.showGame(false);
     }
+
+    /********************************************
+    Initialisering
+    *********************************************/
 
     //initierar vymodellen
     self.init = function () {

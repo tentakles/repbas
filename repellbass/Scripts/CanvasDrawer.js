@@ -2,9 +2,9 @@
 
     var self = this;
 
-    self.canvas;
-    self.width;
-    self.height;
+    self.canvas = null;
+    self.width = null;
+    self.height = null;
 
     self.circle = function (x, y, r, c) {
         self.canvas.beginPath();
