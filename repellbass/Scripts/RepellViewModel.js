@@ -182,9 +182,12 @@ function RepellViewModel(appName, canvas) {
             //flöde 3: användare markerar vilket objekt som skall påverka ett annat med magnetism
         else if (!self.playerHasPlacedMovedTarget && thingOnPosition != null) {
             //todo also check if has anything in adjacent position
-            console.log("flyttar objekt på " + i);
-            self.playerHasPlacedMovedTarget = true;
-            self.oldpos = i;
+
+            if (self.hasAdjacentObject(thingOnPosition)) {
+                console.log("flyttar objekt på " + i);
+                self.playerHasPlacedMovedTarget = true;
+                self.oldpos = i;
+            }
         }
             //flöde 4: användare markerar vilket objekt som skall påverkas av magnetism
         else if (self.playerHasPlacedMovedTarget && thingOnPosition != null) {
@@ -195,7 +198,7 @@ function RepellViewModel(appName, canvas) {
             if (diff == 0) {
                 //trigger reset
                 self.playerHasPlacedMovedTarget = false;
-            } else {
+            } else if (self.validDistance(self.oldpos,thingOnPosition.Pos)){
 
                 var newPos = thingOnPosition.Pos + diff;
 
@@ -262,7 +265,7 @@ function RepellViewModel(appName, canvas) {
 
             var p = positions[i];
 
-            // console.log(item.Pos + " ny:" +p)
+           // console.log("kontrollerar närliggande positioner" +item.Pos + " ny:" +p)
 
             if (p < 0 || p >= self.board.length)
                 continue;
