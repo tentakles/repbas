@@ -392,9 +392,16 @@ function RepellViewModel(appName, canvas) {
     
     //startar ett nytt spel
     self.initGame = function (item, event) {
-
-        self.items(JSON.parse(JSON.stringify(self.originalItems)));
-
+       // self.items(JSON.parse(JSON.stringify(self.originalItems)));
+		
+		var items=[];
+		
+		//copy all items
+		for(var i=0;i<self.originalItems.length;i++){
+		items.push(self.originalItems[i].clone());
+		}
+		self.items(items);
+	
         var num = Math.floor(Math.random() * self.players().length);
         self.selectUserByNum(num);
         
