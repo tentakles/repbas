@@ -16,7 +16,7 @@ function RepellViewModel(appName, canvaselement) {
 	self.logic=null;
 	
     self.status = ko.observable("");
-    self.showNumPlayers = ko.observable(true);
+    self.showNumPlayers = ko.observable(false);
     self.showNamePlayers = ko.observable(false);
     self.showGame = ko.observable(false);
     self.appName = ko.observable(appName + " " + self.version);
@@ -147,38 +147,41 @@ function RepellViewModel(appName, canvaselement) {
 		self.status(self.logic.getStatus());
         self.drawGame();
     }
+	
+	self.getNewPlayers =function(){
+	    var list = [];
+        for (var i = 0; i < self.numPlayers() ; i++) {
+            var p = new PlayerModel("Spelare " + (i + 1), self.colors[i], self.numStartDrops());
+            list.push(p);
+        }
+		return list;
+	}
 
     /********************************************
     Vy-hantering
     *********************************************/
-    
+
+	self.showViews=function(showNumPlayers,showNamePlayers,showGame){
+		self.showNumPlayers(showNumPlayers);
+        self.showNamePlayers(showNamePlayers);
+        self.showGame(showGame);
+	}
+	
     //visar tredje vyn, själva spelet, samt startar spelet
     self.startGame = function (item, event) {
-        self.showNumPlayers(false);
-        self.showNamePlayers(false);
-        self.showGame(true);
+		self.showViews(false,false,true);
         self.initGame();
     };
 
     //visar andra vyn i spelstart-processen där man namnger användarna
     self.namePlayers= function (item, event) {
-        self.showNumPlayers(false);
-        self.showNamePlayers(true);
-        self.showGame(false);
-
-        var list = [];
-        for (var i = 0; i < self.numPlayers() ; i++) {
-            var u = new PlayerModel("Spelare " + (i + 1), self.colors[i], self.numStartDrops());
-            list.push(u);
-        }
-        self.players(list);
+		self.showViews(false,true,false);
+        self.players(self.getNewPlayers());
     };
 
     //visar första vyn i spelstart-processen
     self.configureGame = function () {
-        self.showNumPlayers(true);
-        self.showNamePlayers(false);
-        self.showGame(false);
+		self.showViews(true,false,false);
     }
 
     /********************************************
@@ -189,6 +192,7 @@ function RepellViewModel(appName, canvaselement) {
     self.init = function () {
         canvaselement.click(self.handleClick);
         self.canvasDrawer = new CanvasDrawer(canvaselement);
+		self.configureGame();
     }
 
     self.init();

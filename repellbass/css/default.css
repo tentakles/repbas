@@ -23,6 +23,10 @@
     height: 15px;
 }
 
+.formMargin{
+	margin-bottom:10px;
+}
+
 .float {
     float: left;
 }

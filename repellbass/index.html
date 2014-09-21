@@ -53,11 +53,11 @@
         <div class="panel-body" data-bind="visible:showNumPlayers">
             <h4>Ange antal spelare och startmagneter</h4>
             Antal spelare (2-6):<br />
-            <input type="number" class="form-control" min="2" max="6" data-bind="value:numPlayers" />
-            <br /><br />
+            <input type="number" class="formMargin form-control" min="2" max="6" data-bind="value:numPlayers" />
+           
             Antal startmagneter (1-20):<br />
-            <input type="number" class="form-control" min="1" max="20" data-bind="value:numStartDrops" />
-            <br /><br />
+            <input type="number" class="formMargin form-control" min="1" max="20" data-bind="value:numStartDrops" />
+           
 
             <button class="btn btn-default" data-bind=" click:namePlayers">Namnge användare</button>
 
@@ -68,7 +68,7 @@
             <h4>Namnge spelare</h4>
             <div data-bind="foreach:players">
 
-                <div style="margin-bottom:10px;">
+                <div class="formMargin">
                     <input type="text" class="form-control" data-bind="value:Name,click:function(){Name('');}" />
                 </div>
             </div>

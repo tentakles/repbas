@@ -199,7 +199,7 @@
 
         }
             //flöde 3: användare markerar vilket objekt som skall påverka ett annat med magnetism
-        else if (!self.playerHasPlacedMovedTarget && thingOnPosition != null) {
+        else if (!self.playerHasPlacedMovedTarget && self.playerHasMoved && thingOnPosition != null) {
             //todo also check if has anything in adjacent position
 
             if (self.hasAdjacentObject(thingOnPosition)) {
@@ -209,7 +209,7 @@
             }
         }
             //flöde 4: användare markerar vilket objekt som skall påverkas av magnetism
-        else if (self.playerHasPlacedMovedTarget && thingOnPosition != null) {
+        else if (self.playerHasPlacedMovedTarget && self.playerHasMoved && thingOnPosition != null) {
             //todo also check if has anything in adjacent position
 
             var diff = thingOnPosition.Pos - self.oldpos;
