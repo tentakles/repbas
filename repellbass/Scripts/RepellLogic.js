@@ -24,7 +24,7 @@
 
 	if (self.data.currentPlayer().Pos == index)
 		bgColor = self.data.currentPlayerColor;
-	if (self.oldpos == index && self.playerHasPlacedMovedTarget)
+	if (self.oldpos == index && self.playerHasPlacedMovedTarget && !self.gameOver())
 		bgColor = self.activeObjectColor;
 
 	return bgColor;	
@@ -65,43 +65,82 @@
         return false;
     }
 	
+	self.gameOver=function(){
+	return !self.validMovesLeft() && self.noAdjacentObjects();
+	}
+	
 	 //uppdaterar spelstatustexten
     self.getStatus = function () {
 
+	
+		var playerTitle = self.data.currentPlayer().Name() +'´s tur: ';
+		
+	
         if (self.data.currentPlayer().Pos < 0 && !self.playerHasMoved) {
-            return "Placera ut spelare på grön ruta";
+            return playerTitle + "Placera ut spelare på grön ruta";
         }
 
-        else if (self.validMovesLeft()) {
+        else if (!self.gameOver()) {
 
+		
             if (!self.playerHasMoved)
-                return "Gå med din spelare";
+                return playerTitle + "Gå med din spelare";
             else if (!self.playerHasPlacedMovedTarget)
-                return "Välj det objekt som ska påverka ett annat objekt";
+                return playerTitle + "Välj det objekt som ska påverka ett annat objekt";
             else
-                return "Välj det objekt som ska påverkas";
+                return playerTitle + "Välj det objekt som ska påverkas";
         }
         else {
-            var playerName = "";
-            var maxPoints = -1;
+			var winners = self.getWinners();
+			var playerNames="";
+			
+			for (var i = 0; i < winners.length; i++) {
+			
+			if(playerNames!=="" && i<winners.length-1)
+				playerNames+= ", ";
+			else if(playerNames!=="" && i===winners.length-1)
+				playerNames+= " och ";
+			
+			playerNames+="<i>"+winners[i].Name()+"</i>";
+			}
 
-            for (var i = 0; i < self.data.players().length; i++) {
-
-                var p = self.data.players()[i];
-
-                if (p.ItemSum() > maxPoints) {
-                    playerName = p.Name();
-                    maxPoints = p.ItemSum();
-                    //todo fixa kod för oavgjort
-                }
-            }
-
-            return "Spelet slut! " + playerName + " vann!";
+			if(winners.length>1){
+			return "Spelet slut. Oavgjort mellan " + playerNames + "!";
+		
+			}
+			else{
+			return "Spelet slut. " + playerNames + " vann!";
+			}
+			
+           // return "Spelet slut! " + playerName + " vann!";
         }
     }
 	
+	self.getWinners=function(){
 	
+	var maxPoints=-1;
+	var winners=[];
 	
+	for (var i = 0; i < self.data.players().length; i++) {
+
+		var p = self.data.players()[i];
+
+		if (p.ItemSum() > maxPoints) {
+				maxPoints = p.ItemSum();
+			}
+		}
+		
+	for (var i = 0; i < self.data.players().length; i++) {
+
+		var p = self.data.players()[i];
+
+		if (p.ItemSum() == maxPoints) {
+				winners.push(p);
+			}
+		}	
+		return winners;
+	}
+
     //returnerar huruvida ett objekt ligger intill ett annat objekt
     self.hasAdjacentObject = function (item) {
 
@@ -303,19 +342,23 @@
     //returnerar ett objekt på en position, null om inget finns där
     self.getThingOnPosition = function (pos) {
 
-        for (i = 0; i < self.data.players().length; i++) {
-            var u = self.data.players()[i];
+		//object stored outside playingfield not allowed.
+		if(pos>=0){
+	
+			for (i = 0; i < self.data.players().length; i++) {
+				var u = self.data.players()[i];
 
-            if (u.Pos === pos)
-                return u;
-        }
+				if (u.Pos === pos)
+					return u;
+			}
 
-        for (i = 0; i < self.data.items().length; i++) {
-            var item = self.data.items()[i];
+			for (i = 0; i < self.data.items().length; i++) {
+				var item = self.data.items()[i];
 
-            if (item.Pos === pos)
-                return item;
-        }
+				if (item.Pos === pos)
+					return item;
+			}
+		}
 
         return null;
     }

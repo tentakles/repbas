@@ -1,0 +1,3 @@
+*inte ropa ut i förskott att spelet är slut
+*ta bort lila när spelet är slut
+oavgjort

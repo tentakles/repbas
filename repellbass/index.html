@@ -24,11 +24,8 @@
         
         <!-- Vy: spelet -->
         <div class="panel-body" data-bind="visible:showGame">
-
-            <!-- ko with: currentPlayer -->
-            <h4 class="player selectedPlayer" data-bind="text:Name() +'´s tur'"></h4>
-            <!-- /ko -->
-            <h4 style="color:green" data-bind="text:status"></h4>
+       
+            <h4 class="player selectedPlayer" data-bind="html:status"></h4>
 
             <div class="float">
                 <canvas id="canvas" width="530" height="530"></canvas>
