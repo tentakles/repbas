@@ -9,7 +9,8 @@
 	self.playerHasMoved = false;
     self.playerHasPlacedMovedTarget = false;
     self.oldpos = 0;
-  
+	self.maxPos = (data.rows*data.cols)-1;
+
       //väljer aktuell spelare på index
     self.selectUserByNum = function (num) {
         self.data.currentPlayer(self.data.players()[num]);
@@ -72,10 +73,8 @@
 	 //uppdaterar spelstatustexten
     self.getStatus = function () {
 
-	
 		var playerTitle = self.data.currentPlayer().Name() +'´s tur: ';
 		
-	
         if (self.data.currentPlayer().Pos < 0 && !self.playerHasMoved) {
             return playerTitle + "Placera ut spelare på grön ruta";
         }
@@ -190,7 +189,7 @@
     //returnerar huruvida spelet är redo att gå till nästa tur
     self.isReadyForNextTurn = function () {
 
-        if (self.playerHasMoved && self.playerHasPlacedMovedTarget && self.noAdjacentObjects())
+        if (self.playerHasMoved && self.noAdjacentObjects())
             return true;
 
         return false;
@@ -206,6 +205,25 @@
 
         return false;
     }
+	
+	
+	self.getNewPos=function(oldPos,newPos){
+	
+	var diff = oldPos-newPos;
+	
+	var item = self.data.board[newPos];
+
+    for(var i=1;i<item.Num;i++){
+	newPos-=diff;
+	var thingOnPosition = self.getThingOnPosition(newPos);
+	if(thingOnPosition!=null)
+		return undefined;
+	console.log(diff);
+	
+	}	
+	
+	return newPos;
+	}
 
     //används när användaren markerar en position
     //flöde 1: användare markerar sin startposition
@@ -220,7 +238,7 @@
         var thingOnPosition = self.getThingOnPosition(i);
 
         //flöde 1: användare markerar sin startposition
-        if (player.Pos < 0 && !self.playerHasPlacedMovedTarget && !self.playerHasMoved) {
+        if ((player.Pos < 0||player.Pos>self.maxPos) && !self.playerHasPlacedMovedTarget && !self.playerHasMoved) {
             if (item.Color == "lightgreen" && thingOnPosition == null) {
                 player.Pos = i;
             }
@@ -228,14 +246,18 @@
             //flöde 2: användare markerar var den vill gå
         else if (!self.playerHasMoved && thingOnPosition == null && self.validDistance(player.Pos, i)) {
             //kolla nuvarande position och antalet steg med mera i den riktningen man vill gå.
+			var tempPos= self.getNewPos(player.Pos, i);
+			
+			if(tempPos!=undefined){
+				 var drop = new ItemModel("black", 1, player.Pos);
+				player.Drops(player.Drops() - 1);
+				self.data.items.push(drop);
+				
+				player.Pos = tempPos;
+				self.playerHasMoved = true;
+				}			
+			}
 
-            var drop = new ItemModel("black", 1, player.Pos);
-            player.Drops(player.Drops() - 1);
-            self.data.items.push(drop);
-            player.Pos = i;
-            self.playerHasMoved = true;
-
-        }
             //flöde 3: användare markerar vilket objekt som skall påverka ett annat med magnetism
         else if (!self.playerHasPlacedMovedTarget && self.playerHasMoved && thingOnPosition != null) {
             //todo also check if has anything in adjacent position
