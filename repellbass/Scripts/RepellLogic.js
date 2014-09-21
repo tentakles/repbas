@@ -68,7 +68,7 @@
 	 //uppdaterar spelstatustexten
     self.getStatus = function () {
 
-        if (self.data.currentPlayer().Pos < 0) {
+        if (self.data.currentPlayer().Pos < 0 && !self.playerHasMoved) {
             return "Placera ut spelare på grön ruta";
         }
 
@@ -181,10 +181,9 @@
         var thingOnPosition = self.getThingOnPosition(i);
 
         //flöde 1: användare markerar sin startposition
-        if (player.Pos < 0) {
+        if (player.Pos < 0 && !self.playerHasPlacedMovedTarget && !self.playerHasMoved) {
             if (item.Color == "lightgreen" && thingOnPosition == null) {
                 player.Pos = i;
-
             }
         }
             //flöde 2: användare markerar var den vill gå
@@ -266,7 +265,7 @@
         if (self.isReadyForNextTurn()) {
             self.nextTurn();
         }
-     
+   
     }
 
     self.getRowFromPos = function (pos)
