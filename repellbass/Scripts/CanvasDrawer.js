@@ -10,15 +10,18 @@
         self.canvas.beginPath();
         self.canvas.fillStyle = c;
         self.canvas.arc(x, y, r, 0, Math.PI * 2, true);
-        self.canvas.closePath();
-        self.canvas.fill();
+		self.canvas.fill();
+		self.canvas.stroke();
+        self.canvas.closePath();       
     }
 
     self.rect = function (x, y, w, h, c) {
+		self.canvas.beginPath();
         self.canvas.rect(x, y, w, h);
         self.canvas.fillStyle = c;
         self.canvas.fillRect(x, y, w, h)
         self.canvas.stroke();
+	    self.canvas.closePath();  
     }
 
     self.text = function (text, x, y, c) {
