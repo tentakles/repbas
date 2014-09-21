@@ -5,11 +5,13 @@
 
 	self.data.currentPlayerColor="yellow";
 	self.activeObjectColor="magenta";
+	self.errorColor="red";
 	
 	self.playerHasMoved = false;
     self.playerHasPlacedMovedTarget = false;
     self.oldpos = 0;
-	self.maxPos = (data.rows*data.cols)-1;
+	self.maxPos = (data.cols*data.rows)-1;
+	self.errorPos=-1;
 
       //väljer aktuell spelare på index
     self.selectUserByNum = function (num) {
@@ -27,7 +29,9 @@
 		bgColor = self.data.currentPlayerColor;
 	if (self.oldpos == index && self.playerHasPlacedMovedTarget && !self.gameOver())
 		bgColor = self.activeObjectColor;
-
+	if(self.errorPos==index)
+		bgColor=self.errorColor;
+	
 	return bgColor;	
 	}
   
@@ -195,7 +199,6 @@
         return false;
     }
 
-
     //returnerar ett svar på om det är en giltig distans att gå för en spelare
     self.validDistance = function (player, newpos) {
 
@@ -207,22 +210,33 @@
     }
 	
 	
-	self.getNewPos=function(oldPos,newPos){
+	self.getNewPos=function(oldPos,pos){
 	
-	var diff = oldPos-newPos;
-	
-	var item = self.data.board[newPos];
+	var diff = oldPos-pos;
 
+	var item = self.data.board[pos];
+
+	var lastRow=1;
+	
     for(var i=1;i<item.Num;i++){
-	newPos-=diff;
-	var thingOnPosition = self.getThingOnPosition(newPos);
+	
+	var lastRow=self.getRowFromPos(pos);
+	var newValue = pos-diff;
+	
+	if(lastRow==0 && newValue<pos)
+		return-1;
+	else if(lastRow==self.data.rows-1 && newValue>pos)
+		return-1;
+
+	pos=newValue;
+	
+	var thingOnPosition = self.getThingOnPosition(pos);
 	if(thingOnPosition!=null)
 		return undefined;
-	console.log(diff);
-	
+	console.log("godkänd pos:" + pos);	
 	}	
 	
-	return newPos;
+	return pos;
 	}
 
     //används när användaren markerar en position
@@ -233,6 +247,7 @@
     self.positionSelect = function (i) {
 
         var item = self.data.board[i];
+		self.errorPos=-1;
 
         var player = self.data.currentPlayer();
         var thingOnPosition = self.getThingOnPosition(i);
@@ -256,6 +271,10 @@
 				player.Pos = tempPos;
 				self.playerHasMoved = true;
 				}			
+			
+				else{
+				self.errorPos=i;
+				}
 			}
 
             //flöde 3: användare markerar vilket objekt som skall påverka ett annat med magnetism
@@ -267,6 +286,9 @@
                 self.playerHasPlacedMovedTarget = true;
                 self.oldpos = i;
             }
+			else{
+			self.errorPos=i;
+			}
         }
             //flöde 4: användare markerar vilket objekt som skall påverkas av magnetism
         else if (self.playerHasPlacedMovedTarget && self.playerHasMoved && thingOnPosition != null) {
@@ -345,7 +367,7 @@
     }
 
     self.isOut = function (newPos, oldPos) {
-        if(newPos<0 || newPos > ((self.data.cols*self.data.rows)-1))
+        if(newPos<0 || newPos > self.maxPos)
             return true;
 
         return self.isNotlogicalPushRowDiff(newPos, oldPos);
