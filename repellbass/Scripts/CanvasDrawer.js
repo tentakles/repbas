@@ -30,11 +30,11 @@
         self.canvas.clearRect(0, 0, self.width, self.height);
     }
 
-    self.init = function (canvaselement) {
+    self.init = function () {
         self.canvas = canvaselement[0].getContext("2d");
         self.width = canvaselement.width();
         self.height = canvaselement.height();
     }
 
-    self.init(canvaselement);
+    self.init();
 }

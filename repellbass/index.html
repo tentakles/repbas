@@ -31,7 +31,7 @@
             <h4 style="color:green" data-bind="text:status"></h4>
 
             <div class="float">
-                <canvas id="canvas" width="400" height="400"></canvas>
+                <canvas id="canvas" width="530" height="530"></canvas>
             </div>
 
             <div class="float " style="margin-left:20px;">
@@ -69,11 +69,11 @@
             <div data-bind="foreach:players">
 
                 <div style="margin-bottom:10px;">
-                    <input type="text" class="form-control" data-bind="value:Name" />
+                    <input type="text" class="form-control" data-bind="value:Name,click:function(){Name('');}" />
                 </div>
             </div>
 
-            <button class="btn btn-default" data-bind="click:startGame">Starta spel</button>
+            <button class="btn btn-default" data-bind="hasFocus:true,click:startGame">Starta spel</button>
         </div>
 
     </div>
@@ -82,6 +82,7 @@
     <script src="Scripts/jquery-2.1.1.js"></script>
     <script src="Scripts/bootstrap.js"></script>
     <script src="Scripts/CanvasDrawer.js"></script>
+    <script src="Scripts/RepellLogic.js"></script>
     <script src="Scripts/RepellModels.js"></script>
     <script src="Scripts/RepellViewModel.js"></script>
     <script src="Scripts/main.js"></script>

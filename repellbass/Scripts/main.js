@@ -4,7 +4,10 @@ var repellViewModel;
 function initViewModel() {
 
     var appName = "Repellbas";
-    repellViewModel = new RepellViewModel(appName);
+	
+	var canvaselement = $('#canvas');
+    
+    repellViewModel = new RepellViewModel(appName,canvaselement);
     ko.applyBindings(repellViewModel, document.getElementById("htmlTop"));
 
 }

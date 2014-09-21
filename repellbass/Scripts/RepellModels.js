@@ -28,3 +28,15 @@ function ItemModel(c, v, p) {
 	return new ItemModel(self.Color, self.Value, self.Pos);
 	}
 }
+
+
+function LogicData(){
+
+this.board=null;
+this.items=null;
+this.players=null;
+this.currentPlayer=null;
+this.rows=null;
+this.cols=null;
+
+}
