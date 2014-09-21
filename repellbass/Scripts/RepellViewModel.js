@@ -175,7 +175,7 @@ function RepellViewModel(appName, canvaselement) {
     };
 
     //visar första vyn i spelstart-processen
-    self.restartGame = function () {
+    self.configureGame = function () {
         self.showNumPlayers(true);
         self.showNamePlayers(false);
         self.showGame(false);
