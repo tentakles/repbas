@@ -11,10 +11,14 @@
 }
 
 
+h4{
+margin-top:0px;
+}
+
 .player {
     border-radius: 10px;
     padding: 5px;
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 }
 
 .circle {
