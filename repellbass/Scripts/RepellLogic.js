@@ -7,10 +7,11 @@
 	self.activeObjectColor="magenta";
 	self.errorColor="red";
 	
+	self.allowSuicide=true;
+	
 	self.playerHasMoved = false;
     self.playerHasPlacedMovedTarget = false;
     self.oldpos = 0;
-	self.maxPos = (data.cols*data.rows)-1;
 	self.errorPos=-1;
 
       //väljer aktuell spelare på index
@@ -79,7 +80,9 @@
 
 		var playerTitle = self.data.currentPlayer().Name() +'´s tur: ';
 		
-        if (self.data.currentPlayer().Pos < 0 && !self.playerHasMoved) {
+		 		
+		
+        if (self.positionOutOfBounds(self.data.currentPlayer().Pos) && !self.playerHasMoved) {
             return playerTitle + "Placera ut spelare på grön ruta";
         }
 
@@ -144,6 +147,13 @@
 		return winners;
 	}
 
+	
+	self.positionOutOfBounds=function(pos){
+	
+	return (pos < 0 || pos >= self.data.board.length)
+	
+	}
+	
     //returnerar huruvida ett objekt ligger intill ett annat objekt
     self.hasAdjacentObject = function (item) {
 
@@ -162,9 +172,8 @@
 
             var p = positions[i];
 
-            // console.log("kontrollerar närliggande positioner" +item.Pos + " ny:" +p)
-
-            if (p < 0 || p >= self.data.board.length)
+			
+            if (self.positionOutOfBounds(p))		
                 continue;
 
             if (self.getThingOnPosition(p) != null && (!self.isNotlogicalPushRowDiff(item.Pos,p)))
@@ -211,29 +220,25 @@
 	
 	
 	self.getNewPos=function(oldPos,pos){
-	
 	var diff = oldPos-pos;
-
 	var item = self.data.board[pos];
 
-	var lastRow=1;
+	var lastRow=self.getRowFromPos(pos);
 	
     for(var i=1;i<item.Num;i++){
-	
-	var lastRow=self.getRowFromPos(pos);
-	var newValue = pos-diff;
-	
-	if(lastRow==0 && newValue<pos)
-		return-1;
-	else if(lastRow==self.data.rows-1 && newValue>pos)
-		return-1;
 
-	pos=newValue;
-	
+	pos = pos-diff;
+	var newRow=self.getRowFromPos(pos);
+	var rowDiff = Math.abs(lastRow-newRow);
+
+	 if (self.positionOutOfBounds(pos) || rowDiff>1)
+		return -1;
+
 	var thingOnPosition = self.getThingOnPosition(pos);
 	if(thingOnPosition!=null)
 		return undefined;
 	console.log("godkänd pos:" + pos);	
+	var lastRow=newRow;
 	}	
 	
 	return pos;
@@ -253,7 +258,8 @@
         var thingOnPosition = self.getThingOnPosition(i);
 
         //flöde 1: användare markerar sin startposition
-        if ((player.Pos < 0||player.Pos>self.maxPos) && !self.playerHasPlacedMovedTarget && !self.playerHasMoved) {
+
+        if (self.positionOutOfBounds(player.Pos) && !self.playerHasPlacedMovedTarget && !self.playerHasMoved) {
             if (item.Color == "lightgreen" && thingOnPosition == null) {
                 player.Pos = i;
             }
@@ -264,9 +270,16 @@
 			var tempPos= self.getNewPos(player.Pos, i);
 			
 			if(tempPos!=undefined){
-				 var drop = new ItemModel("black", 1, player.Pos);
+				var drop = new ItemModel("black", 1, player.Pos);
 				player.Drops(player.Drops() - 1);
 				self.data.items.push(drop);
+				
+				if(self.positionOutOfBounds(tempPos) && player.Drops()>0 ){
+				var drop = new ItemModel("black", 1, tempPos);
+				player.Drops(player.Drops() - 1);
+				player.Items.push(drop);
+				
+				}
 				
 				player.Pos = tempPos;
 				self.playerHasMoved = true;
@@ -310,14 +323,12 @@
                     if (self.isOut(newPos, thingOnPosition.Pos)) {
                         console.log("objekt utkastat.");
                         thingOnPosition.Pos = -1;
-                        //if (newPos < 0) {
+
                         if (thingOnPosition instanceof ItemModel) {
                             player.Items.push(thingOnPosition);
                         }
                         else if (thingOnPosition instanceof PlayerModel) {
 
-                            //todo fixme
-                            //ta ett item från personen om det finns någon
                             //todo fixme få välja vilken drop man ska ha?! eller ta den värdefullaste?:O
 
                             if (thingOnPosition.Items().length > 0) {
@@ -351,9 +362,14 @@
    
     }
 
-    self.getRowFromPos = function (pos)
-    {
+    self.getRowFromPos = function (pos){
         return pos % self.data.cols;
+    }
+	
+	self.getColFromPos = function (pos){
+	
+		var col = Math.floor(pos/self.data.cols);
+		return col;
     }
 
     self.isNotlogicalPushRowDiff = function (newPos, oldPos) {
@@ -367,8 +383,11 @@
     }
 
     self.isOut = function (newPos, oldPos) {
-        if(newPos<0 || newPos > self.maxPos)
-            return true;
+
+		var isOut = self.positionOutOfBounds(newPos);
+		
+		if(isOut)
+			return true;
 
         return self.isNotlogicalPushRowDiff(newPos, oldPos);
     }
@@ -387,14 +406,7 @@
     self.getThingOnPosition = function (pos) {
 
 		//object stored outside playingfield not allowed.
-		if(pos>=0){
-	
-			for (i = 0; i < self.data.players().length; i++) {
-				var u = self.data.players()[i];
-
-				if (u.Pos === pos)
-					return u;
-			}
+		if(!self.positionOutOfBounds(pos)){
 
 			for (i = 0; i < self.data.items().length; i++) {
 				var item = self.data.items()[i];

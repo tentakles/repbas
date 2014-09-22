@@ -77,16 +77,8 @@ function RepellViewModel(appName, canvaselement) {
 			var bgColor = self.logic.getBgColor(i);
 
             self.canvasDrawer.rect(xo, yo, xs, ys, bgColor);
-
             //self.canvasDrawer.text(i, xo + textoffsetx, yo + textoffsety, "black");
-
             self.canvasDrawer.text(obj.Num, xo + textoffsetx, yo + textoffsety, "black");
-
-            var item = self.logic.getThingOnPosition(i);
-
-            if (item != null) {
-                self.canvasDrawer.circle(xo + (xs / 2), yo + (ys / 2), item.Size, item.Color);
-            }
 
             if ((i + 1) % self.cols == 0 && i > 0) {
                 y++;
@@ -96,6 +88,24 @@ function RepellViewModel(appName, canvaselement) {
                 x++;
             }
         }
+		
+		//todo sortera things på storlek
+		for (i = 0; i < self.items().length; i++) {
+		var item =  self.items()[i];
+		if(item.Pos>0){
+		var xo = self.logic.getRowFromPos(item.Pos) * xs;	
+        var yo = self.logic.getColFromPos(item.Pos) * ys;
+
+		self.canvasDrawer.circle(xo + (xs / 2), yo + (ys / 2), item.Size, item.Color);
+			
+			if(item.Size!= item.TargetSize){		
+				item.approachTargetSize();			
+				setTimeout(self.drawGame,1000/60);
+			}
+		}
+
+		}
+
     }
 
     //omvandlar ett musevent till en position på brädet, och kör metoden som omvandlar ett markering på brädet till en händelse
@@ -126,6 +136,9 @@ function RepellViewModel(appName, canvaselement) {
 			//clone all items
 		for(var i=0;i<self.originalItems.length;i++){
 			items.push(self.originalItems[i].clone());
+			}
+		for(var i=0;i<self.players().length;i++){
+			items.push(self.players()[i]);
 			}
 		self.items(items);
 	
