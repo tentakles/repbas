@@ -89,6 +89,8 @@ function RepellViewModel(appName, canvaselement) {
             }
         }
 		
+		var needRedraw=false;
+		
 		//todo sortera things på storlek
 		for (i = 0; i < self.items().length; i++) {
 		var item =  self.items()[i];
@@ -96,14 +98,46 @@ function RepellViewModel(appName, canvaselement) {
 		var xo = self.logic.getColFromPos(item.Pos) * xs;	
         var yo = self.logic.getRowFromPos(item.Pos) * ys;
 
-		self.canvasDrawer.circle(xo + (xs / 2), yo + (ys / 2), item.Size, item.Color);
+		var x= Math.floor(xo + (xs / 2));
+		var y= Math.floor(yo + (ys / 2));
+		
+		if(item.TargetX!=x || item.TargetY!=y){
+		item.TargetX=Math.floor(x);
+		item.TargetY=Math.floor(y);
+		item.Size=item.Size*3;
+		}
+		
+		
+		if(item.Targeted){
+		//skip animation
+		item.X=item.TargetX;
+		item.Y=item.TargetY;
+		item.Targeted=false;
+		}
+		
+		
+		self.canvasDrawer.circle(item.X, item.Y, item.Size, item.Color);
 			
-			if(item.Size!= item.TargetSize){		
-				item.approachTargetSize();			
-				setTimeout(self.drawGame,1000/60);
+			//item.Size!= item.TargetSize && 
+			if(item.TargetX!=item.X || item.TargetY!=item.Y || item.Size!= item.TargetSize){		
+				//console.log("approaching target " + item.X + " " +item.Y + " " +item.TargetX + " " +item.TargetX);				
+				
+				item.approachTarget();
+				//console.log("approaching after  " + item.X + " " +item.Y + " " +item.TargetX + " " +item.TargetX);				
+				
+				needRedraw=true;
+			}
+			else{
+				//console.log("targeted  " + item.X + " " +item.Y + " " +item.TargetX + " " +item.TargetX);				
+				
+				//item.Targeted=true;
 			}
 		}
 
+		}
+		
+		if(needRedraw){
+		setTimeout(self.drawGame,1000/60);
 		}
 
     }

@@ -172,7 +172,6 @@
 
             var p = positions[i];
 
-			
             if (self.positionOutOfBounds(p))		
                 continue;
 
@@ -218,7 +217,6 @@
         return false;
     }
 	
-	
 	self.getNewPos=function(oldPos,pos){
 	var diff = oldPos-pos;
 	var item = self.data.board[pos];
@@ -262,6 +260,8 @@
         if (self.positionOutOfBounds(player.Pos) && !self.playerHasPlacedMovedTarget && !self.playerHasMoved) {
             if (item.Color == "lightgreen" && thingOnPosition == null) {
                 player.Pos = i;
+				item.Targeted=true;
+				player.setSize();
             }
         }
             //flöde 2: användare markerar var den vill gå
@@ -282,6 +282,7 @@
 				}
 				
 				player.Pos = tempPos;
+				//player.Targeted=false;
 				self.playerHasMoved = true;
 				}			
 			

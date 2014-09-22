@@ -8,19 +8,45 @@ function PlayerModel(name, c, drops) {
     self.Drops = ko.observable(drops);
     self.Color = c;
  	self.TargetSize=12;
-	self.Size = self.TargetSize*100;
-
 	
-	self.approachTargetSize=function(){
+	self.Targeted=true;
+	self.setSize=function(){
+	self.Size = self.TargetSize*10;
+	};
 	
+	self.setSize();
+	
+	self.TargetX=0;
+	self.TargetY=0;	
+	self.X=0;
+	self.Y=0;
+	
+	self.approachTarget=function(){	
+		var scaleFactor=8;
 		var diff = Math.abs(self.Size-self.TargetSize);
-		var resize=Math.ceil(diff/8);
-		//console.log("resize: " + resize);
+		var resize=Math.ceil(diff/scaleFactor);
+
+		var xdiff = Math.abs(self.X-self.TargetX);
+		var xresize=Math.ceil(xdiff/scaleFactor);
+
+		var ydiff = Math.abs(self.Y-self.TargetY);
+		var yresize=Math.ceil(ydiff/scaleFactor);
+
 		if(self.Size<self.TargetSize)
 			self.Size+=resize;
 		else if(self.Size>self.TargetSize)
-			self.Size-=resize;		
-	}
+			self.Size-=resize;	
+
+		if(self.X<self.TargetX)
+			self.X+=xresize;
+		else if(self.X>self.TargetX)
+			self.X-=xresize;	
+			
+		if(self.Y<self.TargetY)
+			self.Y+=yresize;
+		else if(self.Y>self.TargetY)
+			self.Y-=yresize;					
+	};
 
     self.ItemSum = ko.computed(function () {
         var sum = 0;
@@ -39,10 +65,42 @@ function ItemModel(c, v, p) {
 	self.NewPos= -1;
     self.Size = 7;
 	self.TargetSize = 7;
-
+	self.Targeted=true;
 	self.clone=function(){
 	return new ItemModel(self.Color, self.Value, self.Pos);
-	}
+	};
+	
+	self.TargetX=0;
+	self.TargetY=0;	
+	self.X=0;
+	self.Y=0;
+	
+	self.approachTarget=function(){	
+		var scaleFactor=8;
+		var diff = Math.abs(self.Size-self.TargetSize);
+		var resize=Math.ceil(diff/scaleFactor);
+
+		var xdiff = Math.abs(self.X-self.TargetX);
+		var xresize=Math.ceil(xdiff/scaleFactor);
+
+		var ydiff = Math.abs(self.Y-self.TargetY);
+		var yresize=Math.ceil(ydiff/scaleFactor);
+
+		if(self.Size<self.TargetSize)
+			self.Size+=resize;
+		else if(self.Size>self.TargetSize)
+			self.Size-=resize;	
+
+		if(self.X<self.TargetX)
+			self.X+=xresize;
+		else if(self.X>self.TargetX)
+			self.X-=xresize;	
+			
+		if(self.Y<self.TargetY)
+			self.Y+=yresize;
+		else if(self.Y>self.TargetY)
+			self.Y-=yresize;					
+	};
 }
 
 
