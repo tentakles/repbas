@@ -223,22 +223,22 @@
 	var diff = oldPos-pos;
 	var item = self.data.board[pos];
 
-	var lastRow=self.getRowFromPos(pos);
+	var lastCol=self.getColFromPos(pos);
 	
     for(var i=1;i<item.Num;i++){
 
 	pos = pos-diff;
-	var newRow=self.getRowFromPos(pos);
-	var rowDiff = Math.abs(lastRow-newRow);
+	var newCol=self.getColFromPos(pos);
+	var colDiff = Math.abs(lastCol-newCol);
 
-	 if (self.positionOutOfBounds(pos) || rowDiff>1)
+	 if (self.positionOutOfBounds(pos) || colDiff>1)
 		return -1;
 
 	var thingOnPosition = self.getThingOnPosition(pos);
 	if(thingOnPosition!=null)
 		return undefined;
 	console.log("godkänd pos:" + pos);	
-	var lastRow=newRow;
+	var lastCol=newCol;
 	}	
 	
 	return pos;
@@ -362,24 +362,22 @@
    
     }
 
-    self.getRowFromPos = function (pos){
+    self.getColFromPos = function (pos){
         return pos % self.data.cols;
     }
 	
-	self.getColFromPos = function (pos){
-	
-		var col = Math.floor(pos/self.data.cols);
-		return col;
+	self.getRowFromPos = function (pos){
+		return Math.floor(pos/self.data.cols);
     }
 
     self.isNotlogicalPushRowDiff = function (newPos, oldPos) {
 
-        var r1 = self.getRowFromPos(newPos);
-        var r2 = self.getRowFromPos(oldPos);
+        var c1 = self.getColFromPos(newPos);
+        var c2 = self.getColFromPos(oldPos);
 
-        var rdiff = Math.abs(r1 - r2);
+        var cdiff = Math.abs(c1 - c2);
 
-        return (rdiff > 1);
+        return (cdiff > 1);
     }
 
     self.isOut = function (newPos, oldPos) {

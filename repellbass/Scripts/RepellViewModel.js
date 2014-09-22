@@ -93,8 +93,8 @@ function RepellViewModel(appName, canvaselement) {
 		for (i = 0; i < self.items().length; i++) {
 		var item =  self.items()[i];
 		if(item.Pos>0){
-		var xo = self.logic.getRowFromPos(item.Pos) * xs;	
-        var yo = self.logic.getColFromPos(item.Pos) * ys;
+		var xo = self.logic.getColFromPos(item.Pos) * xs;	
+        var yo = self.logic.getRowFromPos(item.Pos) * ys;
 
 		self.canvasDrawer.circle(xo + (xs / 2), yo + (ys / 2), item.Size, item.Color);
 			
