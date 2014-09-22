@@ -4,7 +4,6 @@ function PlayerModel(name, c, drops) {
     self.Name = ko.observable(name);
     self.Items = ko.observableArray([]);
     self.Pos = -1;
-	self.NewPos= -1;
     self.Drops = ko.observable(drops);
     self.Color = c;
  	self.TargetSize=12;
@@ -62,7 +61,6 @@ function ItemModel(c, v, p) {
     self.Color = c;
     self.Value = v;
     self.Pos = p;
-	self.NewPos= -1;
     self.Size = 7;
 	self.TargetSize = 7;
 	self.Targeted=true;

@@ -10,6 +10,8 @@
 
 *nollställa size animation om man fallar ut.
 
+
+
 sortera på size (störst först) så att de ritas ovanför, på någe vis.
 
 animera utkastningen också, nu försvinner de bara.
@@ -17,8 +19,9 @@ animera utkastningen också, nu försvinner de bara.
 medans man ritar, ha ett "cancelMove", som gör att moves inte släpps igenom.
 när cancel animation, sätt tillbaka den.
 
-[][][]
-[][Z][]
-[][][X]
 
-Z försvinner när X knuffar?!
+Separat RepellDrawer, viewModel.drawer
+
+
+regelgrej:
+ska man itne få knuffa innan man tagit och gått?!

@@ -35,7 +35,7 @@
 
                 <div data-bind="foreach:players">
                     <div class="player" data-bind="css:{selectedPlayer:$data==$root.currentPlayer()}">
-                        <div class="circle float" style="border:1px solid #000000;margin-right:5px;" data-bind="style:{backgroundColor:Color}">&nbsp;</div>  <div style="margin-left:5px;" class="" data-bind="text:Name() +', Magneter:' +Drops()+', Poäng:'+ItemSum()"></div>
+                        <div class="circle float ball" data-bind="style:{backgroundColor:Color}">&nbsp;</div>  <div style="margin-left:5px;" class="" data-bind="text:Name() +', Magneter:' +Drops()+', Poäng:'+ItemSum()"></div>
                     </div>
                 </div>
                 <div>

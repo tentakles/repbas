@@ -94,7 +94,8 @@ function RepellViewModel(appName, canvaselement) {
 		//todo sortera things på storlek
 		for (i = 0; i < self.items().length; i++) {
 		var item =  self.items()[i];
-		if(item.Pos>0){
+		
+		if(!self.logic.positionOutOfBounds(item.Pos)){
 		var xo = self.logic.getColFromPos(item.Pos) * xs;	
         var yo = self.logic.getRowFromPos(item.Pos) * ys;
 
@@ -123,7 +124,7 @@ function RepellViewModel(appName, canvaselement) {
 				//console.log("approaching target " + item.X + " " +item.Y + " " +item.TargetX + " " +item.TargetX);				
 				
 				item.approachTarget();
-				//console.log("approaching after  " + item.X + " " +item.Y + " " +item.TargetX + " " +item.TargetX);				
+				console.log("approaching after  " + item.X + " " +item.Y + " " +item.TargetX + " " +item.TargetX);				
 				
 				needRedraw=true;
 			}
