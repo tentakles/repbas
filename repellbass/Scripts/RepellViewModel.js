@@ -27,7 +27,7 @@ function RepellViewModel(appName, canvaselement) {
     self.players = ko.observableArray([]);
     self.items = ko.observableArray([]);
 
-    self.colors = ["brown", "blue", "pink", "purple", "red", "white"];
+    self.colors = ["brown", "blue", "green", "purple", "red", "white"];
 
     self.originalItems = [new ItemModel("grey", 3, 13),
             new ItemModel("grey", 3, 22),
@@ -107,31 +107,20 @@ function RepellViewModel(appName, canvaselement) {
 		item.TargetY=Math.floor(y);
 		item.Size=item.Size*3;
 		}
-		
-		
+				
 		if(item.Targeted){
 		//skip animation
 		item.X=item.TargetX;
 		item.Y=item.TargetY;
 		item.Targeted=false;
 		}
-		
-		
-		self.canvasDrawer.circle(item.X, item.Y, item.Size, item.Color);
-			
-			//item.Size!= item.TargetSize && 
-			if(item.TargetX!=item.X || item.TargetY!=item.Y || item.Size!= item.TargetSize){		
-				//console.log("approaching target " + item.X + " " +item.Y + " " +item.TargetX + " " +item.TargetX);				
 				
-				item.approachTarget();
-				console.log("approaching after  " + item.X + " " +item.Y + " " +item.TargetX + " " +item.TargetX);				
-				
-				needRedraw=true;
-			}
-			else{
-				//console.log("targeted  " + item.X + " " +item.Y + " " +item.TargetX + " " +item.TargetX);				
-				
-				//item.Targeted=true;
+		self.canvasDrawer.circle(item.X, item.Y, item.Size, item.Color());
+
+		if(item.TargetX!=item.X || item.TargetY!=item.Y || item.Size!= item.TargetSize){		
+			item.approachTarget();			
+			console.log("approaching after  " + item.X + " " +item.Y + " " +item.TargetX + " " +item.TargetX);					
+			needRedraw=true;
 			}
 		}
 
@@ -140,7 +129,6 @@ function RepellViewModel(appName, canvaselement) {
 		if(needRedraw){
 		setTimeout(self.drawGame,1000/60);
 		}
-
     }
 
     //omvandlar ett musevent till en position på brädet, och kör metoden som omvandlar ett markering på brädet till en händelse
@@ -172,9 +160,17 @@ function RepellViewModel(appName, canvaselement) {
 		for(var i=0;i<self.originalItems.length;i++){
 			items.push(self.originalItems[i].clone());
 			}
+			
 		for(var i=0;i<self.players().length;i++){
-			items.push(self.players()[i]);
+			var p = self.players()[i];
+			
+			if(p.Name().toLowerCase()=="camilla"){
+				p.Color("#F660AB");			
 			}
+			
+			items.push(p);
+			}
+			
 		self.items(items);
 	
 		var data = new LogicData();
@@ -198,7 +194,7 @@ function RepellViewModel(appName, canvaselement) {
 	
 	self.getNewPlayers =function(){
 	    var list = [];
-        for (var i = 0; i < self.numPlayers() ; i++) {
+        for (var i = 0; i < self.numPlayers() ; i++){
             var p = new PlayerModel("Spelare " + (i + 1), self.colors[i], self.numStartDrops());
             list.push(p);
         }

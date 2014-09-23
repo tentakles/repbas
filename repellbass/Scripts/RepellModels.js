@@ -5,7 +5,7 @@ function PlayerModel(name, c, drops) {
     self.Items = ko.observableArray([]);
     self.Pos = -1;
     self.Drops = ko.observable(drops);
-    self.Color = c;
+    self.Color = ko.observable(c);
  	self.TargetSize=12;
 	
 	self.Targeted=true;
@@ -58,14 +58,14 @@ function PlayerModel(name, c, drops) {
 
 function ItemModel(c, v, p) {
 	var self = this;
-    self.Color = c;
+	self.Color = ko.observable(c);
     self.Value = v;
     self.Pos = p;
     self.Size = 7;
 	self.TargetSize = 7;
 	self.Targeted=true;
 	self.clone=function(){
-	return new ItemModel(self.Color, self.Value, self.Pos);
+	return new ItemModel(self.Color(), self.Value, self.Pos);
 	};
 	
 	self.TargetX=0;

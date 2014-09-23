@@ -6,6 +6,7 @@
 	self.data.currentPlayerColor="yellow";
 	self.activeObjectColor="magenta";
 	self.errorColor="red";
+	self.okToPlacePlayerColor="lightgreen";
 	
 	self.allowSuicide=true;
 	
@@ -14,7 +15,7 @@
     self.oldpos = 0;
 	self.errorPos=-1;
 
-      //väljer aktuell spelare på index
+    //väljer aktuell spelare på index
     self.selectUserByNum = function (num) {
         self.data.currentPlayer(self.data.players()[num]);
     }
@@ -258,7 +259,7 @@
         //flöde 1: användare markerar sin startposition
 
         if (self.positionOutOfBounds(player.Pos) && !self.playerHasPlacedMovedTarget && !self.playerHasMoved) {
-            if (item.Color == "lightgreen" && thingOnPosition == null) {
+            if (item.Color == self.okToPlacePlayerColor && thingOnPosition == null) {
                 player.Pos = i;
 				item.Targeted=true;
 				player.setSize();
