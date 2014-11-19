@@ -3,7 +3,7 @@ var repellViewModel;
 
 function initViewModel() {
 
-    var appName = "Repellbas";
+    var appName = "Repellbahn";
 	
 	var canvaselement = $('#canvas');
     
